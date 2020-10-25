@@ -7,4 +7,4 @@ This a DNN frameworks for solving biharmonic equations.
 
 2. DNN_bounadary file includes some functions for dealing with the boudaries of PDE_DNN networks.
 
-3. How to use these basic modules? Please refer to any implementation for Biharmonic reuations with Dirichlet or Navier.
+3. How to use these basic modules? Please refer to any implementation for Biharmonic reuations with Dirichlet or Navier boundary.
