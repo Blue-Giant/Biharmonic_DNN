@@ -6,10 +6,6 @@ Benchmark Code of Laplace equations.
 import os
 import sys
 import tensorflow as tf
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
-from matplotlib.colors import LogNorm
 import numpy as np
 import time
 import platform
@@ -248,7 +244,7 @@ def solve_Biharmonic5D(R):
             elif R['regular_weight_model'] == 'L2':
                 regular_WB = DNN_base.regular_weights_biases_L2(Weights2u, Biases2u)    # 正则化权重参数 L2正则化
             else:
-                regular_WB = 0.0                                                                   # 无正则化权重参数
+                regular_WB = tf.constant(0.0)                                                                   # 无正则化权重参数
 
             PWB = wb_penalty * regular_WB
             loss2Psi_NN = loss_it2psi + bd_penalty * loss_bd2Psi_NN
@@ -483,6 +479,7 @@ if __name__ == "__main__":
         R['lr_decay'] = 1e-5       # 学习率 decay
     R['optimizer_name'] = 'Adam'          # 优化器
 
+    # R['hidden_layers'] = (5, 4, 4, 3, 2, 2)
     # R['hidden_layers'] = (40, 40, 30, 20, 20, 10)
     # R['hidden_layers'] = (80, 80, 60, 40, 40, 20)
     # R['hidden_layers'] = (100, 100, 80, 60, 60, 40)
