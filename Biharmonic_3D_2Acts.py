@@ -330,7 +330,7 @@ def solve_Biharmonic3D(R):
     # test_bach_size = 250000
     # size2test = 500
     test_xyz_bach = DNN_data.rand_it(test_bach_size, input_dim, region_lb, region_rt)
-    saveData.save_testData_or_Results2mat(test_xyz_bach, dataName='testXYZ', outPath=R['FolderName'])
+    saveData.save_testData_or_solus2mat(test_xyz_bach, dataName='testXYZ', outPath=R['FolderName'])
 
     # ConfigProto 加上allow_soft_placement=True就可以使用 gpu 了
     config = tf.ConfigProto(allow_soft_placement=True)  # 创建sess的时候对sess进行参数配置
@@ -611,14 +611,17 @@ if __name__ == "__main__":
     # R['model'] = 'PDE_DNN_scale'
 
     # 激活函数的选择
+    # R['act_name2NN1'] = 'relu'
+    R['act_name2NN1'] = 'tanh'
     # R['act_name2NN1'] = 'sin'
-    R['act_name2NN1'] = 's2relu'
+    # R['act_name2NN1'] = 'srelu'
+    # R['act_name2NN1'] = 's2relu'
 
     # R['act_name'] = 'relu'
     # R['act_name']' = leaky_relu'
     # R['act_name'] = 'srelu'
-    # R['act_name2NN2'] = 's2relu'
-    R['act_name2NN2'] = 'powsin_srelu'
+    R['act_name2NN2'] = 's2relu'
+    # R['act_name2NN2'] = 'powsin_srelu'
     # R['act_name'] = 'slrelu'
     # R['act_name'] = 'elu'
     # R['act_name'] = 'selu'
