@@ -310,13 +310,13 @@ def solve_Biharmonic3D(R):
         # test_bach_size = 250000
         # size2test = 500
         test_xyz_bach = DNN_data.rand_it(test_bach_size, input_dim, region_lb, region_rt)
-        saveData.save_testData_or_solus2mat(test_xyz_bach, dataName='dataXYZ', outPath=R['FolderName'])
+        saveData.save_testData_or_solus2mat(test_xyz_bach, dataName='testXYZ', outPath=R['FolderName'])
     else:
         test_bach_size = 1600
         size2test = 40
         mat_data_path = 'data2mat'
         test_xyz_bach = matData2Biharmonic.get_data2Biharmonic(dim=input_dim, data_path=mat_data_path)
-        saveData.save_testData_or_solus2mat(test_xyz_bach, dataName='dataXYZ', outPath=R['FolderName'])
+        saveData.save_testData_or_solus2mat(test_xyz_bach, dataName='testXYZ', outPath=R['FolderName'])
 
     # ConfigProto 加上allow_soft_placement=True就可以使用 gpu 了
     config = tf.ConfigProto(allow_soft_placement=True)  # 创建sess的时候对sess进行参数配置
