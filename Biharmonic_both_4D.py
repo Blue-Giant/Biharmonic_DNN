@@ -528,13 +528,13 @@ def solve_Biharmonic4D(R):
             plotData.plot_Hot_solution2test(u_nn2test, size_vec2mat=size2test, actName=act_func,
                                             seedNo=R['seed'], outPath=R['FolderName'])
 
-        saveData.save_testMSE_REL2mat(test_mse_all, test_rel_all, actName='s2ReLU', outPath=R['FolderName'])
+        saveData.save_testMSE_REL2mat(test_mse_all, test_rel_all, actName=act_func, outPath=R['FolderName'])
         plotData.plotTest_MSE_REL(test_mse_all, test_rel_all, test_epoch, actName=act_func,
                                   seedNo=R['seed'], outPath=R['FolderName'], yaxis_scale=True)
 
         # 绘制误差的能量图
         saveData.save_test_point_wise_err2mat(point_square_error, actName=act_func, outPath=R['FolderName'])
-        plotData.plot_Hot_point_wise_err(point_square_error, size_vec2mat=size2test, actName='s2ReLU',
+        plotData.plot_Hot_point_wise_err(point_square_error, size_vec2mat=size2test, actName=act_func,
                                          seedNo=R['seed'], outPath=R['FolderName'])
 
 
