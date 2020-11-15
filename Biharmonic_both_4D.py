@@ -131,7 +131,7 @@ def solve_Biharmonic4D(R):
             XYZS21 = tf.placeholder(tf.float32, name='XYZS21', shape=[None, input_dim])
             XYZS30 = tf.placeholder(tf.float32, name='XYZS30', shape=[None, input_dim])
             XYZS31 = tf.placeholder(tf.float32, name='XYZS31', shape=[None, input_dim])
-            boundary_penalty = tf.placeholder_with_default(input=1e3, shape=[], name='bd_p')
+            bd_penalty = tf.placeholder_with_default(input=1e3, shape=[], name='bd_p')
             in_learning_rate = tf.placeholder_with_default(input=1e-5, shape=[], name='lr')
             train_opt = tf.placeholder_with_default(input=True, shape=[], name='train_opt')
 
@@ -370,7 +370,7 @@ def solve_Biharmonic4D(R):
                 regular_WB = tf.constant(0.0)                                                                 # 无正则化权重参数
 
             PWB = wb_penalty * regular_WB
-            Loss = Loss_it + boundary_penalty * Loss_bd + boundary_penalty * Loss_bdd  # 要优化的loss function
+            Loss = Loss_it + bd_penalty * Loss_bd + bd_penalty * Loss_bdd  # 要优化的loss function
 
             my_optimizer = tf.train.AdamOptimizer(in_learning_rate)
             train_Loss = my_optimizer.minimize(Loss, global_step=global_steps)
@@ -442,12 +442,12 @@ def solve_Biharmonic4D(R):
             else:
                 temp_penalty_bd = bd_penalty_init
 
-                _, loss_it_tmp, loss_bd_tmp, loss_bdd_tmp, loss_tmp, train_mse_tmp, train_res_tmp, pwb = sess.run(
-                [train_Loss, Loss_it, Loss_bd, Loss_bdd, Loss, train_Mse, train_Rel, PWB],
-                feed_dict={XYZS_it: XYZS_it_batch, XYZS00: XYZS00_batch, XYZS01: XYZS01_batch, XYZS10: XYZS10_batch,
-                           XYZS11: XYZS11_batch, XYZS20: XYZS20_batch, XYZS21: XYZS21_batch, XYZS30: XYZS30_batch,
-                           XYZS31: XYZS31_batch, in_learning_rate: tmp_lr, train_opt: train_option,
-                           boundary_penalty: temp_penalty_bd})
+            _, loss_it_tmp, loss_bd_tmp, loss_bdd_tmp, loss_tmp, train_mse_tmp, train_res_tmp, pwb = sess.run(
+            [train_Loss, Loss_it, Loss_bd, Loss_bdd, Loss, train_Mse, train_Rel, PWB],
+            feed_dict={XYZS_it: XYZS_it_batch, XYZS00: XYZS00_batch, XYZS01: XYZS01_batch, XYZS10: XYZS10_batch,
+                       XYZS11: XYZS11_batch, XYZS20: XYZS20_batch, XYZS21: XYZS21_batch, XYZS30: XYZS30_batch,
+                       XYZS31: XYZS31_batch, in_learning_rate: tmp_lr, train_opt: train_option,
+                       bd_penalty: temp_penalty_bd})
 
             loss_it_all.append(loss_it_tmp)
             loss_bd_all.append(loss_bd_tmp)
@@ -477,9 +477,9 @@ def solve_Biharmonic4D(R):
 
             if (i_epoch != 0 and i_epoch != 100000) and i_epoch % 10000 == 0 and R['Navier_boundary'] == 1:
                 pathOut = '%s/%s' % (R['FolderName'], int(i_epoch / 10000))
-                print('------- i_epoch-------:', i_epoch)
-                print('\n')
-                print('------- pathOut-------:', pathOut)
+                # print('------- i_epoch-------:', i_epoch)
+                # print('\n')
+                # print('------- pathOut-------:', pathOut)
                 if not os.path.exists(pathOut):  # 判断路径是否已经存在
                     os.mkdir(pathOut)  # 无 log_out_path 路径，创建一个 log_out_path 路径
 
@@ -491,7 +491,7 @@ def solve_Biharmonic4D(R):
                     plotData.plot_Hot_solution2test(u_true2test, size_vec2mat=size2test, actName='Utrue',
                                                     seedNo=R['seed'], outPath=R['FolderName'])
                     # 绘制预测解得热力图
-                    plotData.plot_Hot_solution2test(u_nn2test, size_vec2mat=size2test, actName='s2ReLU',
+                    plotData.plot_Hot_solution2test(u_nn2test, size_vec2mat=size2test, actName=act_func,
                                                     seedNo=R['seed'], outPath=R['FolderName'])
 
                 saveData.save_testMSE_REL2mat(test_mse_all, test_rel_all, actName=act_func, outPath=pathOut)
@@ -509,8 +509,7 @@ def solve_Biharmonic4D(R):
         plotData.plotTrain_loss_1act_func(loss_it_all, lossType='loss_it', seedNo=R['seed'],
                                           outPath=R['FolderName'])
         plotData.plotTrain_loss_1act_func(loss_bd_all, lossType='loss_bd', seedNo=R['seed'],
-                                          outPath=R['FolderName'],
-                                          yaxis_scale=True)
+                                          outPath=R['FolderName'], yaxis_scale=True)
         plotData.plotTrain_loss_1act_func(loss_all, lossType='loss', seedNo=R['seed'], outPath=R['FolderName'])
 
         saveData.save_train_MSE_REL2mat(train_mse_all, train_rel_all, actName=act_func, outPath=R['FolderName'])
@@ -518,8 +517,11 @@ def solve_Biharmonic4D(R):
                                              outPath=R['FolderName'], yaxis_scale=True)
 
         # ------------------------------ save testing result to mat file, then plot them -------------------------------
-        saveData.save_testData_or_solus2mat(u_true2test, dataName='Utrue', outPath=R['FolderName'])
-        saveData.save_testData_or_solus2mat(u_nn2test, dataName=act_func, outPath=R['FolderName'])
+        if R['testData_model'] == 'random_generate':
+            saveData.save_2testSolus2mat(u_true2test, u_nn2test, actName='Utrue', actName1=act_func, outPath=R['FolderName'])
+        else:
+            saveData.save_testData_or_solus2mat(u_true2test, dataName='Utrue', outPath=R['FolderName'])
+            saveData.save_testData_or_solus2mat(u_nn2test, dataName=act_func, outPath=R['FolderName'])
         if R['hot_power'] == 1:
             # 绘解得热力图
             plotData.plot_Hot_solution2test(u_true2test, size_vec2mat=size2test, actName='Utrue',
@@ -540,10 +542,10 @@ def solve_Biharmonic4D(R):
 
 if __name__ == "__main__":
     R={}
-    R['gpuNo'] = 1  # 默认使用 GPU，这个标记就不要设为-1，设为0,1,2,3,4....n（n指GPU的数目，即电脑有多少块GPU）
+    R['gpuNo'] = 0  # 默认使用 GPU，这个标记就不要设为-1，设为0,1,2,3,4....n（n指GPU的数目，即电脑有多少块GPU）
 
     # 文件保存路径设置
-    store_file = 'pos1'
+    store_file = 'both4D'
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(BASE_DIR)
     OUT_DIR = os.path.join(BASE_DIR, store_file)
@@ -593,19 +595,20 @@ if __name__ == "__main__":
     # ------------------------------------  神经网络的设置  ----------------------------------------
     R['hot_power'] = 0
     R['batch_size2interior'] = 7500        # 内部训练数据的批大小
-    R['batch_size2boundary'] = 1250        # 边界训练数据的批大小
+    R['batch_size2boundary'] = 1500        # 边界训练数据的批大小
     R['testData_model'] = 'loadData'
 
     R['regular_weight_model'] = 'L0'
+    # R['regular_weight_model'] = 'L1'
     # R['regular_weight_model'] = 'L2'
+    R['regular_weight'] = 0.000  # Regularization parameter for weights
+    # R['regular_weight'] = 0.001         # Regularization parameter for weights
 
     R['init_bd_penalty'] = 500           # Regularization parameter for boundary conditions
     R['activate_stage_penalty'] = 1       # 是否开启阶段调整边界惩罚项
     if R['activate_stage_penalty'] == 1 or R['activate_stage_penalty'] == 2:
         R['init_bd_penalty'] = 5
 
-    R['regular_weight'] = 0.000           # Regularization parameter for weights
-    # R['regular_weight'] = 0.001         # Regularization parameter for weights
     if 50000 < R['max_epoch']:
         R['learning_rate'] = 2e-4  # 学习率
         R['lr_decay'] = 5e-5       # 学习率 decay
@@ -638,10 +641,10 @@ if __name__ == "__main__":
 
     # 激活函数的选择
     # R['act_name'] = 'relu'
-    # R['act_name'] = 'tanh'
+    R['act_name'] = 'tanh'
     # R['act_name']' = leaky_relu'
     # R['act_name'] = 'srelu'
-    R['act_name'] = 'sin_srelu'
+    # R['act_name'] = 's2relu'
     # R['act_name'] = 'slrelu'
     # R['act_name'] = 'elu'
     # R['act_name'] = 'selu'

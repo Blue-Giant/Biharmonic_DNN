@@ -55,6 +55,10 @@ def save_trainLoss2mat_1actFunc_Navier(loss_U, loss_bd, loss_Psi, loss_bdd, loss
         outFile2data = '%s/Loss_sReLU.mat' % (outPath)
     elif str.lower(actName) == 'relu':
         outFile2data = '%s/Loss_ReLU.mat' % (outPath)
+    elif str.lower(actName) == 'elu':
+        outFile2data = '%s/Loss_ELU.mat' % (outPath)
+    elif str.lower(actName) == 'tanh':
+        outFile2data = '%s/Loss_TANH.mat' % (outPath)
     else:
         outFile2data = '%s/Loss_%s.mat' % (outPath, str(actName))
 
@@ -100,7 +104,7 @@ def save_testData_or_solus2mat(data, dataName=None, outPath=None):
         key2mat = 'Utrue'
     else:
         outFile2data = '%s/U%s.mat' % (outPath, dataName)
-        key2mat = 'U%s.mat' % (str.upper(dataName))
+        key2mat = 'U%s' % (str.upper(dataName))
 
     scio.savemat(outFile2data, {key2mat: data})
 
@@ -204,4 +208,8 @@ def save_test_point_wise_err2mat(data2point_wise_err, actName=None, outPath=None
     elif str.lower(actName) == 'tanh':
         outFile2data = '%s/pERR2tanh.mat' % (outPath)
         key2mat = 'pERR2tanh'
+        scio.savemat(outFile2data, {key2mat: data2point_wise_err})
+    elif str.lower(actName) == 'elu':
+        outFile2data = '%s/pERR2elu.mat' % (outPath)
+        key2mat = 'pERR2elu'
         scio.savemat(outFile2data, {key2mat: data2point_wise_err})
